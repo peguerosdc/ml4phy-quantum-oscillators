@@ -21,9 +21,23 @@ class QHOGas():
         Z_1 = 1/( 2*np.sinh(bhw/2) )
         return np.exp( -bhw*(n + 1/2) )/Z_1
 
-    def calculate_expected_n(self):
-        bhw = (constants.hbar * self.w)/(constants.k * self.T)
-        return 1/( math.exp(bhw) - 1 )
+    def calculate_expected_n(self, ns = None):
+        # Return theoretical if no samples are provided
+        if ns is None:
+            bhw = (constants.hbar * self.w)/(constants.k * self.T)
+            return 1/( math.exp(bhw) - 1 )
+        else:
+            return np.average(ns)
+
+    def calculate_expected_e(self, ns = None):
+        # Return theoretical if no samples are provided
+        if ns is None:
+            bhw = (constants.hbar * self.w)/(constants.k * self.T)
+            return self.N*constants.hbar*self.w*( 1/2 + 1/( math.exp(bhw) - 1 ) )
+        else:
+            # Compute the total energy of each batch and then average
+            total_energy_per_gas = np.sum(constants.hbar*self.w*( ns + 1/2 ), axis=1 )
+            return np.average(total_energy_per_gas)
 
     def generate(self, amount, normalize=True, n_max=10):
         """

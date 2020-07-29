@@ -4,27 +4,19 @@ import numpy as np
 
 # Init the quantum gas at temperature T, frequency w and
 # N particles
-N = 100
+N = 28*28
 T = 0.00001
 w = 1000000
-gas = qho.QHOGas(N, T, w)
 
 # hyper-params
-hidden_units = 10
+hidden_units = 150
 training_size = 30000
-batchsize = 10
+batchsize = 10 # este va de 10 a 100, pero 10 es el recomendado para este caso
 eta = 0.0001
 nsteps = 10*30000
 
+gas = qho.QHOGas(N=28*28, T=0.00001, w=1000000)
 # Init the boltzmann machine and train it
-m = bm.BoltzmannMachine(hidden_units)
-training_set = gas.generate(training_size)
-a,b,w = m.train(training_set, batchsize, eta, nsteps)
-
-# Test an output generated after s steps
-s = 1000
-initial_state = gas.generate(1)
-generated = m.produce(initial_state, s)
-
-# Compute the average <n> and check with the theoretical value
-print(f" <n> : theoretical={gas.calculate_expected_n()} vs generated={np.average(generated)}")
+m = bm.BoltzmannMachine(num_hidden=500)
+training_set = gas.generate(amount=30000)
+a,b,w = m.train(training_set, batchsize=10, eta=0.0001, nsteps=10*30000, display_after_steps=10*1500)
