@@ -6,24 +6,35 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.rcParams['figure.dpi']=300 # highres display
 
+def load_data(apath, bpath, wpath):
+    a = np.loadtxt(apath, delimiter=',')
+    b = np.loadtxt(bpath, delimiter=',')
+    w = np.loadtxt(wpath, delimiter=',')
+    return (a,b,w)
+
+def init_gas_and_machine(a,b,w):
+    gas = qho.QHOGas(N=a.shape[0])
+    m = bm.BoltzmannMachine(a=a, b=b, w=w)
+    return gas, m
+
+def get_results(machine, initial_state, steps):
+    # Multiply by 10 to extract data from gaussian units and roundInt
+    # to convert to quantum numbers (which are integers)
+    generated = machine.generate(initial_state, steps)*10
+    asQuantumNumbers = np.rint(generated)
+    return generated, asQuantumNumbers
+
 # load stored training
-a = np.loadtxt('a_34.csv', delimiter=',')
-b = np.loadtxt('b_34.csv', delimiter=',')
-w = np.loadtxt('w_34.csv', delimiter=',')
+a,b,w = load_data('./data/a_34.csv', './data/b_34.csv', './data/w_34.csv')
 
 # load en existing boltzmann machine
-gas = qho.QHOGas(N=a.shape[0])
-m = bm.BoltzmannMachine(a=a, b=b, w=w)
+gas, m = init_gas_and_machine(a,b,w)
 
 # create new samples with the machine
 trial_amount = 20
 trial_steps = 100
 initial_state = gas.generate(trial_amount)
-# initial_state = np.random.randn(trial_amount, a.shape[0])
-generated = m.produce(initial_state, trial_steps)*10
-# Multiply by 10 to extract data from gaussian units and roundInt
-# to convert to quantum numbers (which are integers)
-generated_quantum_numbers = np.rint(generated)
+generated, generated_quantum_numbers = get_results(m, initial_state, trial_steps)
 
 # Show average quantum number
 print(f"<n> :\ttheoretical\t= {gas.calculate_expected_n()} \n\
@@ -37,7 +48,6 @@ print(f"<E> :\ttheoretical\t= {gas.calculate_expected_e()} \n\
     generated rounded\t= {gas.calculate_expected_e(generated_quantum_numbers)}\n"
 )
 
-
 # Plot the theoretical probability distribution and the generated histogram
 n = np.arange(0,10)
 plt.hist( generated_quantum_numbers.flatten(), bins=np.arange(0,10), density=True, label="Sampled" )
@@ -48,15 +58,15 @@ plt.ylabel('P(n)')
 plt.legend()
 
 # Plot the weights and biases for reference
-def plotIt(axis, values, label):
+plt.figure(1)
+fig, ax = plt.subplots(1, 3)
+fig.suptitle('Weights and biases')
+def plotHistogram(axis, values, label):
     axis.hist(values)
     axis.set_title(f"{label}: mm = {np.mean(np.fabs(values))}", fontsize=6)
     axis.tick_params(axis='both', labelsize=4)
-weights = plt.figure(1)
-fig, ax = plt.subplots(1, 3)
-fig.suptitle('Weights and biases')
-plotIt(ax[0], a, 'a')
-plotIt(ax[1], w.flatten(), 'w')
-plotIt(ax[2], b, 'b')
+plotHistogram(ax[0], a, 'a')
+plotHistogram(ax[1], w.flatten(), 'w')
+plotHistogram(ax[2], b, 'b')
 
 plt.show()
