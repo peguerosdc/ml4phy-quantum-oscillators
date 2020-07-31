@@ -25,7 +25,7 @@ def get_results(machine, initial_state, steps):
     return generated, asQuantumNumbers
 
 # load stored training
-a,b,w = load_data('./data/a_34.csv', './data/b_34.csv', './data/w_34.csv')
+a,b,w = load_data('./data/a47.csv', './data/b47.csv', './data/w47.csv')
 
 # load en existing boltzmann machine
 gas, m = init_gas_and_machine(a,b,w)

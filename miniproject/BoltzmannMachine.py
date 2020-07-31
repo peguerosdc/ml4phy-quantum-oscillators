@@ -6,14 +6,17 @@ class BoltzmannMachine(object):
     by Florian Marquardt in the 'Online Course: Machine Learning for Physicists 2020' 
     (https://pad.gwdg.de/s/HJtiTE__U#Course-overview)."""
 
-    def __init__(self, num_hidden=None, a=None, b=None, w=None):
+    def __init__(self, num_hidden=None, a=None, b=None, w=None, l2=None):
         """Defines a Restricted Boltzmann Machine with some possible pre-trained weights (w)
         and biases (a,b).
-        The number of hidden units is only required if no b is supplied."""
+        The number of hidden units is only required if no b is supplied.
+        The L2 coefficient typically ranges from 0.01 to 0.00001. A good starting
+        point would be 0.0001"""
         self.a = a
         self.b = b
         self.w = w
         self.num_hidden = num_hidden if b is None else b.shape[0]
+        self.l2 = l2
     
     def train(self, dataset, batchsize, eta, nsteps, do_while_training=None):
         """Train this boltzmann machine based on the dataset and the hyper-parameters provided.
@@ -34,20 +37,21 @@ class BoltzmannMachine(object):
             b = np.copy(self.b)
             w = np.copy(self.w)
         # Train in the given amount of steps 'nsteps'
-        try:
-
-            for j in range(nsteps):
+        for j in range(nsteps):
+            try:
                 v = self.get_minibatch(dataset, batchsize)
                 da,db,dw = self.train_step(v, a, b, w)
                 a += eta*da
                 b += eta*db
-                w += eta*dw
+                # consider l2 penalty
+                w += eta*dw - ( self.l2*w if self.l2 else 0 )
                 
                 if do_while_training:
                     do_while_training(self, j, nsteps, eta, a, b, w, da, db, dw)
 
-        except KeyboardInterrupt as e:
-            print("Stopped. Saving...")
+            except KeyboardInterrupt as e:
+                print(f"Stopped at step {j} of {nsteps}. Saving...")
+                break
 
         # Return tuned hyper-parameters
         self.a = a
@@ -55,23 +59,28 @@ class BoltzmannMachine(object):
         self.w = w
         return (a,b,w)
 
-    def generate(self, initial, steps):
+    def generate(self, initial, steps, a=None, b=None, w=None):
         """
         Given an initial state 'initial', produce new samples after 'steps' steps.
         """
+        a = self.a if a is None else a
+        b = self.b if b is None else b
+        w = self.w if w is None else w
         # Get some variables from the trained parameters and the initial state
-        num_visible = np.shape(self.a)[0]
+        num_visible = np.shape(a)[0]
+        num_hidden = np.shape(b)[0]
         batchsize = np.shape(initial)[0]
         # Pre-allocate the variables we are going to use for performance
         v = np.copy(initial)
         v_prime = np.zeros([batchsize, num_visible])
-        h = np.zeros([batchsize, self.num_hidden])
-        h_prime = np.zeros([batchsize, self.num_hidden])
+        h = np.zeros([batchsize, num_hidden])
+        h_prime = np.zeros([batchsize, num_hidden])
 
         # step from v via h to v_prime after 'steps' steps
         for k in range(steps):
-            v,h,v_prime,h_prime = self.boltzmann_sequence(v, self.a, self.b, self.w)
+            v,h,v_prime,h_prime = self.boltzmann_sequence(v, a, b, w)
             # Shouldn't we set v = v_prime?
+            v = np.copy(v_prime)
 
         # Return the new batch
         return v_prime
