@@ -33,6 +33,18 @@ class QHOGas():
 
     def calculate_expected_e(self, ns = None):
         """
+        Calculates the expected energy per oscillator.
+        Returns the theoretical value if no samples are provided
+        """
+        if ns is None:
+            n = self.calculate_expected_n()
+            return constants.hbar*self.w*( n + 1/2 )
+        else:
+            # Compute the energy of each oscillator and then average
+            return np.average( constants.hbar*self.w*( ns + 1/2 ) )
+
+    def calculate_internal_energy(self, ns = None):
+        """
         Calculates the expected energy (which equals to the internal energy).
         Returns the theoretical value if no samples are provided
         """

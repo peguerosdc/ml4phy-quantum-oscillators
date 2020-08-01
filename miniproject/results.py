@@ -4,7 +4,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.rcParams['figure.dpi']=300 # highres display
+matplotlib.rcParams['figure.dpi']=300
+plt.style.use('seaborn-deep')
 
 def load_data(apath, bpath, wpath):
     a = np.loadtxt(apath, delimiter=',')
@@ -43,16 +44,22 @@ print(f"<n> :\ttheoretical\t= {gas.calculate_expected_n()} \n\
 )
 
 # Show average energy
-print(f"<E> :\ttheoretical\t= {gas.calculate_expected_e()} \n\
+print(f"<E> :\ttheoretical\t= {gas.calculate_internal_energy()} \n\
+    \tgenerated\t= {gas.calculate_internal_energy(generated)} \n\
+    generated rounded\t= {gas.calculate_internal_energy(generated_quantum_numbers)}\n"
+)
+
+# Show average energy per oscillator
+print(f"<e> :\ttheoretical\t= {gas.calculate_expected_e()} \n\
     \tgenerated\t= {gas.calculate_expected_e(generated)} \n\
     generated rounded\t= {gas.calculate_expected_e(generated_quantum_numbers)}\n"
 )
 
 # Plot the theoretical probability distribution and the generated histogram
 n = np.arange(0,10)
-plt.hist( generated_quantum_numbers.flatten(), bins=np.arange(0,10), density=True, label="Sampled" )
-plt.plot( n, gas.p_n(n), label="Theor." )
-plt.title(f"P(n) for {trial_amount} samples generated after {trial_steps} steps")
+plt.hist( [generated, generated_quantum_numbers.flatten()], bins=np.arange(0,10), density=True, label=["Sampled", "Rounded"])
+plt.plot( n, gas.p_n(n), label="Theoretical", lw=2.5 )
+plt.title(r"$\rho_n$" + f" for {trial_amount} samples generated after {trial_steps} steps")
 plt.xlabel('n')
 plt.ylabel('P(n)')
 plt.legend()
@@ -60,11 +67,10 @@ plt.legend()
 # Plot the weights and biases for reference
 plt.figure(1)
 fig, ax = plt.subplots(1, 3)
-fig.suptitle('Weights and biases')
 def plotHistogram(axis, values, label):
     axis.hist(values)
     axis.set_title(f"{label}: mm = {np.mean(np.fabs(values))}", fontsize=6)
-    axis.tick_params(axis='both', labelsize=4)
+    axis.tick_params(axis='both', labelsize=5.5)
 plotHistogram(ax[0], a, 'a')
 plotHistogram(ax[1], w.flatten(), 'w')
 plotHistogram(ax[2], b, 'b')
