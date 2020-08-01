@@ -29,7 +29,7 @@ After `300,000` training steps using contrastive divergence, the final state of 
 
 ![Final state](./doc/final.png)
 
-And the generated probability distribution, along with the thermodynamic quantities calculated from the generated samples, are:
+And the generated probability distribution, along with the thermodynamic quantities calculated from the generated samples (in the SI), are:
 
 ![Generated sample](./doc/pn.png)
 
