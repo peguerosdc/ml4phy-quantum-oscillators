@@ -2,7 +2,7 @@
 import numpy as np
 
 class BoltzmannMachine(object):
-    """Encapsulated implementation of the Restricted Boltzmann Machine implementation provided
+    """Encapsulated version of the Restricted Boltzmann Machine implementation provided
     by Florian Marquardt in the 'Online Course: Machine Learning for Physicists 2020' 
     (https://pad.gwdg.de/s/HJtiTE__U#Course-overview)."""
 
