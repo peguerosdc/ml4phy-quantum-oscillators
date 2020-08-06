@@ -1,4 +1,4 @@
-# On the statistics of a set of quantum mechanical harmonic oscillators. A machine learning approach.
+# From a Restricted Boltzmann Machine to a Set of Quantum Mechanical Harmonic Oscillators
 
 This is the code of my final mini-project presented for the online course ["Machine Learning for Physicists 2020"](https://pad.gwdg.de/s/HJtiTE__U) offered by the University of Erlangen-Nuremberg and lectured by Florian Marquardt during the COVID-19 lockdown.
 
