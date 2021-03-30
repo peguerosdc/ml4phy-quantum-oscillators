@@ -15,6 +15,7 @@ $ pip install -r requirements.txt
 $ cd miniproject
 $ python train.py
 ```
+For a more detailed description, you can refer to the [report](./report.pdf) I wrote for the course. A very brief [presentation](./presentation.pdf) is also available.
 
 ## Results
 
